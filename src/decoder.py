@@ -208,9 +208,13 @@ def run_parameter_extraction(
                 if param.name == "regex":
                     for tid, text in vocab.items():
                         stripped = text.strip()
-                        if stripped and _is_valid_regex_continuation(
-                            partial_state, stripped
-                        ):
+                        if not stripped:
+                            continue
+                        if partial_state == 'init' and stripped.startswith('[') and len(stripped) > 1:
+                            continue
+                        if partial_state == 'has_atom' and '+' in stripped and not stripped.endswith('+'):
+                            continue
+                        if _is_valid_regex_continuation(partial_state, stripped):
                             masked_logits[tid] = logits_np[tid]
                 elif param.type_name == "integer":
                     for tid, text in vocab.items():
